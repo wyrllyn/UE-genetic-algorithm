@@ -1,0 +1,35 @@
+Problème du "OneMax"
+
+individus de taille n
+ex n = 10, i1 = 0101100001
+
+fitness = sum(bi) (=> nombre de 1) f(i1) = 4 DONE
+
+pop initiale : tous les individus DONE
+
+Mutations
+
+	- bit-flip = chaque bi a une proba 1/n de changer 
+
+	- 1-flip = on change 1 bit au hasard dans i DONE
+
+	- k-flip = on change k bits au hasard dans i DONE
+
+Croisement
+
+	- croisement a 1 point (au hasard) DONE
+	- croisement uniforme de manière aléatoire DONE
+
+Selection 
+	- Selection des parents
+		- roulette wheel selection DONE
+		- other 
+	- Selection de la nouvelle pop
+		- steady-state type DONE
+		- other
+
+Global
+	- critère d'arrêt
+
+Perso
+	- remplacement de solutions DONE
