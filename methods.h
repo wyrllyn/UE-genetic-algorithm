@@ -1,5 +1,7 @@
-#include "stdio.h"
-#include "stdlib.h"
+#ifndef METHOD_H
+#define METHOD_H
+
+#include "print_methods.h"
 
 int fitness(int* tab, int size);
 
@@ -15,14 +17,16 @@ void generate_random_sols(int *** solutions, int n, int popSize);
 
 int * roulette_wheel_selection(int ** solutions, int n, int popSize);
 
+int * tourn(int ** solution, int n, int popSize);
+
 void replace(int *** solutions, int* child, int index, int n);
 
 int * get_worst(int ** solution, int n, int popSize);
 
-void first_algorithm(int popSize);
-
-void print_tab(int* tab, int size);
-
-void print_solutions(int ** solutions, int n, int popSize);
+void first_algorithm(int popSize, char* fileName);
 
 int isInto(int j, int* toRem, int rmsize);
+
+void writeInFile(int ** solutions, int n, int popSize, char* fileName);
+
+#endif

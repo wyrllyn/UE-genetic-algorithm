@@ -14,7 +14,7 @@ int main (int argc, char** argv){
 	int * rws = roulette_wheel_selection(solutions, n, popSize);
 	printf("chosen index 1 : %d, index 2 : %d \n",rws[0], rws[1]);*/
 
-	first_algorithm(5);
+	first_algorithm(10, "trace.txt");
 
 
 

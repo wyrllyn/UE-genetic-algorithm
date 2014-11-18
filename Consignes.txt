@@ -8,12 +8,14 @@ fitness = sum(bi) (=> nombre de 1) f(i1) = 4 DONE
 pop initiale : tous les individus DONE
 
 Mutations
-
 	- bit-flip = chaque bi a une proba 1/n de changer 
+		- ils peuvent tous être flippés d'un coup
 
 	- 1-flip = on change 1 bit au hasard dans i DONE
 
-	- k-flip = on change k bits au hasard dans i DONE
+	- k-flip = on change k bits au hasard dans i DONE 
+		=> les plus utilisés 1/3/5 flip
+			- on accepte un mouvement seulement s'il améliore (nombre impair : sur que le fitness change)
 
 Croisement
 
@@ -28,8 +30,14 @@ Selection
 		- steady-state type DONE
 		- other
 
-Global
-	- critère d'arrêt
+Other
+	- insérer si meilleurs que les parents
+		- soit à la place des parents
+		- soit à la place des + mauvais
 
-Perso
-	- remplacement de solutions DONE
+Schema global
+	- pop
+	- selection
+	- croisement
+	- mutation
+	- insertion

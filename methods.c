@@ -17,12 +17,25 @@ void generate_random_sols(int *** solutions, int n, int popSize) {
 	for (int i = 0; i < n; i++) {
 		(*solutions)[i] = (int*)malloc(sizeof(int)*n);
 	}
-	srand(time(NULL));
 	// i represents index into population
 	// j represents index into solution i
 	for (int i = 0; i < popSize; i++){
 		for (int j = 0; j < n; j++) {
 			(*solutions)[i][j] = rand() % 2;
+		}
+	}
+}
+
+void init_with_zero(int *** solutions, int n, int popSize) {
+	*solutions = (int**)malloc(sizeof(int*) * popSize);
+	for (int i = 0; i < n; i++) {
+		(*solutions)[i] = (int*)malloc(sizeof(int)*n);
+	}
+	// i represents index into population
+	// j represents index into solution i
+	for (int i = 0; i < popSize; i++){
+		for (int j = 0; j < n; j++) {
+			(*solutions)[i][j] = 0;
 		}
 	}
 }
@@ -54,7 +67,6 @@ void k_flip(int**tab, int n, int k){
 				tmp = rand() % n;
 			}
 			index[i] = tmp;
-			printf("i = %d, tmp = %d \n", i, tmp);
 		}
 		for (int j = 0; j < k ; j++) {
 			tmp = (*tab)[index[j]];
@@ -66,8 +78,23 @@ void k_flip(int**tab, int n, int k){
 			}
 		}
 	}
-
 	free(index);
+}
+
+void bit_flip(int** tab, int n){
+	float randVal = 0;
+	float proba = 1/n;
+	for (int i = 0; i < n; i++){
+		randVal = (float)rand()/(float)(RAND_MAX/1);
+		if (randVal <= proba) {
+			if ((*tab)[i] == 0){
+				(*tab)[i] = 1;
+			}
+			else {
+				(*tab)[i] = 0;
+			}
+		}
+	}
 }
 
 
@@ -125,6 +152,13 @@ int * roulette_wheel_selection(int ** solutions, int n, int popSize) {
 		probability[i] = fitness(solutions[i], n);
 		total+= probability[i];
 	}
+
+	if (total == 0) {
+		toReturn[0] = rand() % popSize;
+		toReturn[1] = rand() % popSize;
+		return toReturn;
+	}
+
 	for (int i = 0; i < popSize; i++) {
 		probability[i]/=total;
 	}
@@ -136,6 +170,7 @@ int * roulette_wheel_selection(int ** solutions, int n, int popSize) {
 	//modification
 
 	float firstRand = (float)rand()/(float)(RAND_MAX/1);
+
 	tmp = 0;
 	for (int i = 0; i < popSize; i++) {
 		tmp += probability[i];
@@ -157,6 +192,42 @@ int * roulette_wheel_selection(int ** solutions, int n, int popSize) {
 		}
 	}
 
+	return toReturn;
+}
+
+
+// select 3 randomly and chose de best (return 2)
+int * tourn(int ** solution, int n, int popSize){
+	int nbr = 4;
+
+	int * toReturn = (int*)malloc(sizeof(int) * 2);
+	int * tmp = (int*)malloc(sizeof(int)*nbr);
+	int tmpRand = 0;
+	int cmp = 0;
+	while(cmp < nbr) {
+		tmpRand = rand() % popSize;
+		if (isInto(tmpRand, tmp, cmp) == 0){
+			tmp[cmp] = tmpRand;
+			cmp++;
+		}
+	}
+	int val = tmp[0];
+	int index = 0;
+	for (int i = 1; i < nbr; i++) {
+		if (tmp[i] < val) {
+			index = i;
+			val = tmp[i];
+		}
+	}
+
+	cmp = 0;
+	for (int i = 0; i < nbr; i++) {
+		if (i != index) {
+			toReturn[cmp] = tmp[i];
+			cmp++;
+		}
+	}
+	free(tmp);
 	return toReturn;
 }
 
@@ -197,7 +268,7 @@ int * get_worst(int ** solution, int n, int popSize){
 ///////////////////////////////////////////
 //////////////////////////////////////////
 
-void first_algorithm(int popSize){
+void first_algorithm(int popSize, char* fileName){
 	int ** solutions;
 	int n = 10;
 
@@ -212,16 +283,23 @@ void first_algorithm(int popSize){
 	float probability;
 	float acceptance = 0.5;
 
-	generate_random_sols(&solutions, n, popSize);
+	srand(78);
+
+	//generate_random_sols(&solutions, n, popSize);
+	init_with_zero(&solutions, n, popSize);
 	print_solutions(solutions, n, popSize);
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
 	}
 
-	while (cmp < 10000 && done == 0) {
+	while (cmp < 200000 && done == 0) {
+
+		writeInFile(solutions, n, popSize, fileName);
+		//printf("test\n");
 
 		rws = roulette_wheel_selection(solutions, n, popSize);
+	//	rws = tourn(solutions, n , popSize);
 
 	//	print_tab(solutions[rws[0]], n);
 	//	print_tab(solutions[rws[1]], n);
@@ -238,9 +316,11 @@ void first_algorithm(int popSize){
 		replace(&solutions, children[1], worst[1], n);
 
 		probability = (float)rand()/(float)(RAND_MAX/1);
-		if (probability < acceptance) {
-			one_flip(&solutions[worst[0]], n);
-			one_flip(&solutions[worst[1]], n);
+		if (probability <= acceptance) {
+		//	printf("mutation \n");
+			k_flip(&solutions[worst[0]],n, 3);
+			k_flip(&solutions[worst[1]], n, 3);
+			//done = 1;
 		}
 
 		cmp++;
@@ -252,7 +332,7 @@ void first_algorithm(int popSize){
 			}
 		}
 	}
-
+	writeInFile(solutions, n, popSize, fileName);
 	print_solutions(solutions, n, popSize);
 
 	for (int i = 0; i < popSize; i++) {
@@ -263,24 +343,6 @@ void first_algorithm(int popSize){
 
 }
 
-void print_tab(int* tab, int size){
-	for (int i = 0; i < size; i++){
-		printf("%d", tab[i]);
-	}
-	printf("\n");
-}
-
-
-// print solutions // verification method
-void print_solutions(int ** solutions, int n, int popSize) {
-	for (int i = 0; i < popSize; i++) {
-		printf(" solution %d : ", i);
-		for (int j = 0; j < n ; j++){
-			printf("%d", solutions[i][j]);
-		}
-		printf("\n");
-	}
-}
 
 // return 0 if false, 1 if true
 int isInto(int j, int* toRem, int rmsize) {
@@ -290,4 +352,23 @@ int isInto(int j, int* toRem, int rmsize) {
 		}
 	}
 	return 0;
+}
+
+void writeInFile(int ** solutions, int n, int popSize, char* fileName) {
+	FILE* file = NULL;
+	char * line = (char*)malloc(sizeof(char) * strlen(fileName));
+	strcpy(line, fileName);
+	file = fopen(line, "a");
+
+	float fit = 0;
+	for (int i = 0; i < popSize; i++) {
+		fit += fitness(solutions[i], n);
+	}
+	fit /= popSize;
+
+	if (file != NULL){
+		fprintf(file,"%f", fit);
+		fprintf(file, "\n");
+		fclose(file);
+	}
 }
