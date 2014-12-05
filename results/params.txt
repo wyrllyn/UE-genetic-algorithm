@@ -1,0 +1,6 @@
+folder 1 :
+	- init with zero
+	- roulette wheel selection
+	- one point crossover
+	- replace worst
+	- one_flip with a 0.5 acceptance 

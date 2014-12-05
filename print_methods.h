@@ -5,7 +5,6 @@
 #include "stdlib.h"
 #include "string.h"
 
-void writeInFile(int ** solutions, int n, int popSize, char* fileName);
 
 void print_tab(int* tab, int size);
 

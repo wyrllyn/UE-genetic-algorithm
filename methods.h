@@ -23,10 +23,18 @@ void replace(int *** solutions, int* child, int index, int n);
 
 int * get_worst(int ** solution, int n, int popSize);
 
+void init_mat_hamming(int *** mat, int ** sol, int n, int popSize);
+
+void update_mat_hamming(int *** mat, int ** sol, int newi, int newj, int n, int popSize);
+
+int hamming(int * sol1, int * sol2, int n);
+
+float average_hamming(int ** mat, int popSize);
+
 void first_algorithm(int popSize, char* fileName);
 
 int isInto(int j, int* toRem, int rmsize);
 
-void writeInFile(int ** solutions, int n, int popSize, char* fileName);
+void writeInFile(int ** solutions, int n, int popSize, char* fileName, int cmp);
 
 #endif

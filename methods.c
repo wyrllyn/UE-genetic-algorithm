@@ -265,6 +265,50 @@ int * get_worst(int ** solution, int n, int popSize){
 	return toReturn;
 }
 
+void init_mat_hamming(int *** mat, int ** sol, int n, int popSize) {
+	(*mat) = (int**) malloc(sizeof(int *) * popSize);
+	for (int i = 0; i < popSize; i++) {
+		(*mat)[i] = (int*)malloc(sizeof(int) * popSize);
+	}
+	
+	for (int i = 0; i < popSize; i++) {
+		for (int j = i; j < popSize; j++) {
+			(*mat)[i][j] = hamming(sol[i], sol[j], n);
+		}
+	}
+}
+
+void update_mat_hamming(int *** mat, int ** sol, int newi, int newj, int n, int popSize){
+	for (int i = 0; i < popSize; i++) {
+		(*mat)[i][newj] = hamming(sol[i], sol[newj], n);
+		(*mat)[newj][i] = hamming(sol[i], sol[newj], n);
+		(*mat)[i][newi] = hamming(sol[i], sol[newi], n);
+		(*mat)[newi][i] = hamming(sol[i], sol[newi], n);
+	}
+}
+
+int hamming(int * sol1, int * sol2, int n) {
+	int toReturn = 0;
+	for (int i = 0; i < n ;i++) {
+		if (sol1[i] != sol2[i]){
+			toReturn++;
+		}
+	}
+	return toReturn;
+}
+
+float average_hamming(int ** mat, int popSize) {
+	float toReturn = 0;
+	for (int i = 0; i < popSize; i++) {
+		for (int j = i; j < popSize; j++){
+			toReturn = mat[i][j];
+		}
+	}
+	toReturn /= popSize;
+
+	return toReturn;
+}
+
 ///////////////////////////////////////////
 //////////////////////////////////////////
 
@@ -276,6 +320,8 @@ void first_algorithm(int popSize, char* fileName){
 	int * worst;
 	int ** children;
 
+	int ** matHamming;
+
 	int cmp = 0;
 
 	int done = 0;
@@ -283,45 +329,37 @@ void first_algorithm(int popSize, char* fileName){
 	float probability;
 	float acceptance = 0.5;
 
-	srand(78);
+	srand(time(NULL));
 
 	//generate_random_sols(&solutions, n, popSize);
 	init_with_zero(&solutions, n, popSize);
+	init_mat_hamming(&matHamming, solutions, n, popSize);
 	print_solutions(solutions, n, popSize);
+	printf("average_hamming = %f \n", average_hamming(matHamming, popSize));
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
 	}
 
-	while (cmp < 200000 && done == 0) {
+	while (cmp < 1000 && done == 0) {
 
-		writeInFile(solutions, n, popSize, fileName);
-		//printf("test\n");
-
+		writeInFile(solutions, n, popSize, fileName, cmp);
 		rws = roulette_wheel_selection(solutions, n, popSize);
-	//	rws = tourn(solutions, n , popSize);
-
-	//	print_tab(solutions[rws[0]], n);
-	//	print_tab(solutions[rws[1]], n);
 
 		children = one_point_crossover(solutions[rws[0]], solutions[rws[1]], n);
 
-	//	print_tab(children[0], n);
-	//	print_tab(children[1], n);
-
 		worst = get_worst(solutions, n, popSize);
-		//printf("%d and %d \n", worst[0], worst[1]);
 
 		replace(&solutions, children[0], worst[0], n);
 		replace(&solutions, children[1], worst[1], n);
 
 		probability = (float)rand()/(float)(RAND_MAX/1);
 		if (probability <= acceptance) {
-		//	printf("mutation \n");
-			k_flip(&solutions[worst[0]],n, 3);
-			k_flip(&solutions[worst[1]], n, 3);
-			//done = 1;
+			one_flip(&solutions[worst[0]],n);
+			one_flip(&solutions[worst[1]], n);
 		}
+
+		update_mat_hamming(&matHamming, solutions, worst[0], worst[1], n, popSize);
 
 		cmp++;
 
@@ -332,12 +370,13 @@ void first_algorithm(int popSize, char* fileName){
 			}
 		}
 	}
-	writeInFile(solutions, n, popSize, fileName);
+	writeInFile(solutions, n, popSize, fileName, cmp);
 	print_solutions(solutions, n, popSize);
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
 	}
+	printf("average_hamming = %f \n", average_hamming(matHamming, popSize));
 
 	printf("cmp = %d\n", cmp );
 
@@ -354,15 +393,34 @@ int isInto(int j, int* toRem, int rmsize) {
 	return 0;
 }
 
-void writeInFile(int ** solutions, int n, int popSize, char* fileName) {
+// moyenne
+
+void writeInFile(int ** solutions, int n, int popSize, char* fileName, int cmp) {
 	FILE* file = NULL;
+	FILE * file2 = NULL;
 	char * line = (char*)malloc(sizeof(char) * strlen(fileName));
+	char * lineBest = (char*) malloc(sizeof(char) * (strlen(fileName)+5));
+	
 	strcpy(line, fileName);
-	file = fopen(line, "a");
+	strcpy(lineBest, fileName);
+	strcat(lineBest, "bf");
+
+	if (cmp > 0) {
+		file = fopen(line, "a");
+		file2 = fopen(lineBest, "a");
+	}
+	else {
+		file = fopen(line, "w");
+		file2 = fopen(lineBest, "w");
+	}
 
 	float fit = 0;
+	int bf = 0;
 	for (int i = 0; i < popSize; i++) {
 		fit += fitness(solutions[i], n);
+		if (fitness(solutions[i],n) > bf) {
+			bf = fitness(solutions[i],n);
+		}
 	}
 	fit /= popSize;
 
@@ -371,4 +429,16 @@ void writeInFile(int ** solutions, int n, int popSize, char* fileName) {
 		fprintf(file, "\n");
 		fclose(file);
 	}
+	if (file2 != NULL) {
+		fprintf(file2,"%d", bf);
+		fprintf(file2, "\n");
+		fclose(file2);
+	}
+	else {
+		printf("error with 2nd file \n");
+	}
+
+
+	free(line);
+	free(lineBest);
 }

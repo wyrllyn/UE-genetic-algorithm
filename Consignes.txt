@@ -9,13 +9,13 @@ pop initiale : tous les individus DONE
 
 Mutations
 	- bit-flip = chaque bi a une proba 1/n de changer 
-		- ils peuvent tous être flippés d'un coup
+		- ils peuvent tous être flippés d'un coup DONE
 
 	- 1-flip = on change 1 bit au hasard dans i DONE
 
 	- k-flip = on change k bits au hasard dans i DONE 
 		=> les plus utilisés 1/3/5 flip
-			- on accepte un mouvement seulement s'il améliore (nombre impair : sur que le fitness change)
+			- on accepte un mouvement seulement s'il améliore (nombre impair : sûr que le fitness change)
 
 Croisement
 
@@ -30,10 +30,19 @@ Selection
 		- steady-state type DONE
 		- other
 
-Other
-	- insérer si meilleurs que les parents
-		- soit à la place des parents
-		- soit à la place des + mauvais
+		Other
+			- insérer si meilleurs que les parents 
+				- soit à la place des parents
+				- soit à la place des + mauvais
+
+Diversification 
+	- entropie
+	- 
+
+Qualité
+	- fitness (meilleur)
+	- fitness (moyenne)
+	- fitness (écart type)
 
 Schema global
 	- pop
@@ -41,3 +50,5 @@ Schema global
 	- croisement
 	- mutation
 	- insertion
+
+search : royal road
