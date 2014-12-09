@@ -10,4 +10,6 @@ void print_tab(int* tab, int size);
 
 void print_solutions(int ** solutions, int n, int popSize);
 
+void print_mat(int ** mat, int popSize);
+
 #endif

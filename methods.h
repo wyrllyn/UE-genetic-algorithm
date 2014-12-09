@@ -35,6 +35,6 @@ void first_algorithm(int popSize, char* fileName);
 
 int isInto(int j, int* toRem, int rmsize);
 
-void writeInFile(int ** solutions, int n, int popSize, char* fileName, int cmp);
+void writeInFile(int ** solutions, int n, int popSize, char* fileName, int cmp, int ** matHamming);
 
 #endif

@@ -18,3 +18,12 @@ void print_solutions(int ** solutions, int n, int popSize) {
 		printf("\n");
 	}
 }
+
+void print_mat(int ** mat, int popSize){
+	for (int i = 0; i < popSize; i++) {
+		for (int j= 0; j < popSize; j++) {
+			printf("%d ", mat[i][j]);
+		}
+		printf("\n");
+	}
+}
