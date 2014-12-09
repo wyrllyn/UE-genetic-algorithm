@@ -348,7 +348,7 @@ void first_algorithm(int popSize, char* fileName){
 
 	while (cmp < 1000 && done == 0) {
 
-		printf("%d : average_hamming = %f \n", cmp, average_hamming(matHamming, popSize));
+		//printf("%d : average_hamming = %f \n", cmp, average_hamming(matHamming, popSize));
 
 		//print_mat(matHamming, popSize);
 
