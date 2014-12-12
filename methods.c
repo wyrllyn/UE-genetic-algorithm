@@ -395,6 +395,13 @@ void first_algorithm(int popSize, char* fileName){
 
 }
 
+float calculate_entropy() {
+	float toReturn;
+
+
+	return toReturn; 
+}
+
 
 // return 0 if false, 1 if true
 int isInto(int j, int* toRem, int rmsize) {
@@ -406,7 +413,9 @@ int isInto(int j, int* toRem, int rmsize) {
 	return 0;
 }
 
-// moyenne
+void bandit() {
+
+}
 
 void writeInFile(int ** solutions, int n, int popSize, char* fileName, int cmp, int ** matHamming) {
 	FILE* file = NULL;
