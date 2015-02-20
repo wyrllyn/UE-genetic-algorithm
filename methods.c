@@ -4,7 +4,7 @@
 ////////// ALGORITHMS/////////////////////////////////
 //////////////////////////////////////////
 
-void first_algorithm(int solSize, char* fileName){
+void first_algorithm(int solSize, char* fileName, int select, int cross, int mut, int insert){
 	int ** solutions;
 	int n = solSize;
 
@@ -17,19 +17,14 @@ void first_algorithm(int solSize, char* fileName){
 	int ** matHamming;
 
 	int cmp = 0;
-
 	int done = 0;
-
 	float probability;
 	float acceptance = 0.5;
 
 	srand(time(NULL));
 
-	//generate_random_sols(&solutions, n, popSize);
 	init_with_zero(&solutions, n, popSize);
 	init_mat_hamming(&matHamming, solutions, n, popSize);
-	//print_solutions(solutions, n, popSize);
-	//printf("average_hamming = %f \n", average_hamming(matHamming, popSize));
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
@@ -37,34 +32,64 @@ void first_algorithm(int solSize, char* fileName){
 
 	while (cmp < 100000 && done == 0) {
 
-		printf("%d \n", cmp);
-
-		//printf("%d : average_hamming = %f \n", cmp, average_hamming(matHamming, popSize));
-
-		//print_mat(matHamming, popSize);
-
-		//print_solutions(matHamming, popSize, popSize);
-
 		writeInFile(solutions, n, popSize, fileName, cmp, matHamming);
-		rws = roulette_wheel_selection(solutions, n, popSize);
+		switch(select) {
+			case 1:
+				rws = roulette_wheel_selection(solutions, n, popSize);
+				break;
+			case 2:
+				//best
+				break;
+			case 3 :
+				//rand
+				break;
+		}
 
-		children = one_point_crossover(solutions[rws[0]], solutions[rws[1]], n);
+		switch(cross) {
+			case 1:
+				children = one_point_crossover(solutions[rws[0]], solutions[rws[1]], n);
+				break;
+			case 2:
+				children = uniform_crossover(solutions[rws[0]], solutions[rws[1]], n);
+				break;
+		}
 
-		worst = get_worst(solutions, n, popSize);
+		switch(insert) {
+			case 1:
+				worst = get_worst(solutions, n, popSize);
+				break;
+			case 2:
+				//age
+				break;
+		}
 
 		replace(&solutions, children[0], worst[0], n);
 		replace(&solutions, children[1], worst[1], n);
 
 		probability = (float)rand()/(float)(RAND_MAX/1);
-		if (probability <= acceptance) {
-			one_flip(&solutions[worst[0]],n);
-			one_flip(&solutions[worst[1]], n);
+		if (mut != 0 && probability <= acceptance) {
+			switch(mut) {
+				case 1:
+					one_flip(&solutions[worst[0]],n);
+					one_flip(&solutions[worst[1]], n);
+					break;
+				case 2:
+					k_flip(&solutions[worst[0]],n,3);
+					k_flip(&solutions[worst[1]], n,3);
+					break;
+				case 3:
+					k_flip(&solutions[worst[0]],n,5);
+					k_flip(&solutions[worst[1]], n,5);
+					break;
+				case 4:
+					bit_flip(&solutions[worst[0]],n);
+					bit_flip(&solutions[worst[1]], n);
+					break;
+			}
+
 		}
 
 		update_mat_hamming(&matHamming, solutions, worst[0], worst[1], n, popSize);
-
-
-
 		cmp++;
 
 		for (int i = 0; i < popSize; i++) {
@@ -93,10 +118,4 @@ float calculate_entropy() {
 	return toReturn; 
 }
 
-
-
-
-void bandit() {
-
-}
 
