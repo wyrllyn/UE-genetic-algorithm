@@ -3,6 +3,6 @@
 
 #include "print_methods.h"
 
-void first_algorithm(int popSize, char* fileName);
+void first_algorithm(int solSize, char* fileName);
 
 #endif

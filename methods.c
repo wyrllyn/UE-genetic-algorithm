@@ -4,9 +4,11 @@
 ////////// ALGORITHMS/////////////////////////////////
 //////////////////////////////////////////
 
-void first_algorithm(int popSize, char* fileName){
+void first_algorithm(int solSize, char* fileName){
 	int ** solutions;
-	int n = 10;
+	int n = solSize;
+
+	int popSize = 10;
 
 	int * rws;
 	int * worst;
@@ -26,14 +28,16 @@ void first_algorithm(int popSize, char* fileName){
 	//generate_random_sols(&solutions, n, popSize);
 	init_with_zero(&solutions, n, popSize);
 	init_mat_hamming(&matHamming, solutions, n, popSize);
-	print_solutions(solutions, n, popSize);
-	printf("average_hamming = %f \n", average_hamming(matHamming, popSize));
+	//print_solutions(solutions, n, popSize);
+	//printf("average_hamming = %f \n", average_hamming(matHamming, popSize));
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
 	}
 
-	while (cmp < 1000 && done == 0) {
+	while (cmp < 100000 && done == 0) {
+
+		printf("%d \n", cmp);
 
 		//printf("%d : average_hamming = %f \n", cmp, average_hamming(matHamming, popSize));
 

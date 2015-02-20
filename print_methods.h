@@ -1,7 +1,7 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include "utils.h"
+#include "bandit.h"
 
 
 void print_tab(int* tab, int size);
