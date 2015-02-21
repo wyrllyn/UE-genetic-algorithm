@@ -34,9 +34,15 @@ int * roulette_wheel_selection(int ** solutions, int n, int popSize);
 
 int * tourn(int ** solution, int n, int popSize);
 
+int * randParents(int popSize);
+
+int * get_oldest(int * age, int popSize);
+
 void replace(int *** solutions, int* child, int index, int n);
 
 int * get_worst(int ** solution, int n, int popSize);
+
+int * best(int ** solutions, int n, int popSize);
 
 int isInto(int j, int* toRem, int rmsize);
 

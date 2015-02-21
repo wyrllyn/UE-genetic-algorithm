@@ -1,10 +1,11 @@
 #include "methods.h"
 
+int cmp_max = 500000;
 
 ////////// ALGORITHMS/////////////////////////////////
 //////////////////////////////////////////
 
-void first_algorithm(int solSize, char* fileName, int select, int cross, int mut, int insert){
+void first_algorithm(int solSize, char* fileName, int select, int cross, int mut, int insert, int count){
 	int ** solutions;
 	int n = solSize;
 
@@ -23,25 +24,32 @@ void first_algorithm(int solSize, char* fileName, int select, int cross, int mut
 
 	srand(time(NULL));
 
+	//for replacement
+	int * age= (int*)malloc(sizeof(int) * popSize);
+	for (int i = 0; i < popSize; i++) age[i] = 0;
+
 	init_with_zero(&solutions, n, popSize);
 	init_mat_hamming(&matHamming, solutions, n, popSize);
+
+	//best fitness for each iteration
+	int* trace = (int*) malloc(sizeof(int) * cmp_max);
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
 	}
 
-	while (cmp < 100000 && done == 0) {
+	while (cmp < cmp_max && done == 0) {
 
 		writeInFile(solutions, n, popSize, fileName, cmp, matHamming);
 		switch(select) {
 			case 1:
-				rws = roulette_wheel_selection(solutions, n, popSize);
+				rws = tourn(solutions, n, popSize);
 				break;
 			case 2:
-				//best
+				rws = best(solutions, n, popSize);
 				break;
 			case 3 :
-				//rand
+				rws = randParents(popSize);
 				break;
 		}
 
@@ -59,7 +67,11 @@ void first_algorithm(int solSize, char* fileName, int select, int cross, int mut
 				worst = get_worst(solutions, n, popSize);
 				break;
 			case 2:
-				//age
+				worst = get_oldest(age, popSize);
+				//update old
+				for(int i = 0; i < popSize ; i++) age[i]++;
+				age[worst[0]] = 0;
+				age[worst[1]] = 0;
 				break;
 		}
 
@@ -90,25 +102,49 @@ void first_algorithm(int solSize, char* fileName, int select, int cross, int mut
 		}
 
 		update_mat_hamming(&matHamming, solutions, worst[0], worst[1], n, popSize);
-		cmp++;
+		
 
+		int tmp_best = 0;
 		for (int i = 0; i < popSize; i++) {
-			if (fitness(solutions[i], n) == n) {
+			int tmp_fit = fitness(solutions[i], n);
+			if (tmp_fit > tmp_best) tmp_best = tmp_fit;
+			if (tmp_fit == n) {
 				done = 1;
 				break;
 			}
 		}
+		trace[cmp] = tmp_best;
+		cmp++;
+
 	}
 	writeInFile(solutions, n, popSize, fileName, cmp, matHamming);
-	print_solutions(solutions, n, popSize);
+//	print_solutions(solutions, n, popSize);
 
 	for (int i = 0; i < popSize; i++) {
 		printf("i = %d : fitness = %d \n", i, fitness(solutions[i], n));
 	}
-	
 
-	printf("cmp = %d\n", cmp );
+	if (cmp == cmp_max) printf("MAXIMAL ITERATION NUMBER REACHED\n");
 
+	//for (int i = 0; i < cmp; i++) printf("%d : best = %d\n",i, trace[i]);
+	write_fitness_per_iteration(trace, cmp, popSize, select, cross, mut, insert, count);
+
+}
+
+void write_fitness_per_iteration(int* fit, int size, int pop, int select, int cross, int mut, int insert, int count) {
+	FILE* file = NULL;
+	char* name = (char*)malloc(sizeof(char) * 10);
+	name = "res_fit.txt";
+
+	file = fopen(name, "a");
+
+	if(file != NULL) {
+		fprintf(file,"# %d %d %d %d %d %d \n", pop, select, cross, mut, insert, count);
+		for (int i = 0; i < size; i++) {
+			fprintf(file, "%d %d\n", i, fit[i]);
+		}
+		fclose(file);
+	}
 }
 
 float calculate_entropy() {

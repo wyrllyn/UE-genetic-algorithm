@@ -276,6 +276,9 @@ int * tourn(int ** solution, int n, int popSize){
 	}
 	int val = tmp[0];
 	int index = 0;
+
+	//PROBLEM, where is the fitness ???
+
 	for (int i = 1; i < nbr; i++) {
 		if (tmp[i] < val) {
 			index = i;
@@ -291,6 +294,42 @@ int * tourn(int ** solution, int n, int popSize){
 		}
 	}
 	free(tmp);
+	return toReturn;
+}
+
+int * best(int ** solutions, int n, int popSize) {
+	int tmp = -1;
+	int * toReturn = (int*)malloc(sizeof(int) * 2);
+
+	for (int i = 0; i < popSize; i++) {
+		int fit = fitness(solutions[i],n);
+		if (fit > tmp ) {
+			tmp = fit;
+			toReturn[0] = i;
+		}
+
+	}
+	tmp = -1;
+	for (int i = 0; i < popSize; i++) {
+		if(i != toReturn[0]) {
+			int fit = fitness(solutions[i],n);
+			if (fit >= tmp ) {
+				tmp = fit;
+				toReturn[1] = i;
+			}
+		}
+	}
+	return toReturn;
+}
+
+int * randParents(int popSize) {
+	int * toReturn = (int*)malloc(sizeof(int) * 2);
+	toReturn[0] = rand() % popSize;
+	toReturn[1] = rand() % popSize;
+	while(toReturn[0] == toReturn[1]) {
+		toReturn[1] = rand() % popSize;
+	}
+
 	return toReturn;
 }
 
@@ -325,6 +364,29 @@ int * get_worst(int ** solution, int n, int popSize){
 			toReturn[1] = i;
 		}
 	}
+	return toReturn;
+}
+
+int * get_oldest(int * age, int popSize) {
+
+	int * toReturn = (int*)malloc(sizeof(int) * 2);
+	toReturn[0] = -1;
+	toReturn[1] = -1;
+	int tmp_val = -1;
+	for (int i = 0; i < popSize ; i++) {
+		if (age[i] > tmp_val) {
+			tmp_val = age[i];
+			toReturn[0] = i;
+		}
+	}
+	tmp_val = -1;
+	for (int i = 0; i < popSize ; i++) {
+		if (age[i] >= tmp_val && i != toReturn[0]) {
+			tmp_val = age[i];
+			toReturn[1] = i;
+		}
+	}
+
 	return toReturn;
 }
 
