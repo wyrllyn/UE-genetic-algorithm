@@ -1,9 +1,6 @@
 #include "bandit.h"
 
 
-
-
-
 int* ActionMax(float* E, int sizeE) {
     int valmax = E[0];
     int* Amax = malloc(sizeof(int) * sizeE);
@@ -45,7 +42,7 @@ int tirage_aleatoire(float* proba, int sizeP) {
     return index;
 }
 
-int select_greedy(int* R, int sizeR) {
+int select_greedy(float* R, int sizeR) {
     int toReturn = -1;
     int tmp = 0;
     for (int i = 0; i < sizeR; i++) {
@@ -62,7 +59,7 @@ int select_greedy(int* R, int sizeR) {
     return toReturn;
 }
 
-int select_egreedy(int* R, int sizeR, float epsilon) {
+int select_egreedy(float* R, int sizeR, float epsilon) {
     int toReturn = -1;
     float tmp = (float)rand()/(float)(RAND_MAX/1);
     if (tmp > epsilon) {
@@ -75,7 +72,7 @@ int select_egreedy(int* R, int sizeR, float epsilon) {
 }
 
 
-int UCB1(int* R, int sizeR, int iter, int* Actions, int sizeA) {
+int UCB1(float* R, int sizeR, int iter, int* Actions, int sizeA) {
     float * tempReward = (float*)malloc(sizeof(float) * sizeR);
     for (int i = 0; i < sizeR; i++) {
         tempReward[i] = R[i] + sqrt((2*log10(iter))/(Actions[i]+1));
@@ -88,7 +85,7 @@ int UCB1(int* R, int sizeR, int iter, int* Actions, int sizeA) {
 
 
 //warning proba = float*
-int roulette_adaptative(int* R, int sizeR, float ** Proba, int sizeP, float Pmin) {
+int roulette_adaptative(float* R, int sizeR, float ** Proba, int sizeP, float Pmin) {
     int toReturn = 0;
     int tmp = 0;
     for (int i = 0; i < sizeR; i++) {
@@ -109,7 +106,7 @@ int roulette_adaptative(int* R, int sizeR, float ** Proba, int sizeP, float Pmin
     return toReturn;
 }
 
-int adaptive_pursuit(int* R, int sizeR, float** Proba, float Pmin, float alpha) {
+int adaptive_pursuit(float* R, int sizeR, float** Proba, float Pmin, float alpha) {
     float Pmax = 1 - ((sizeR - 1) * Pmin);
     int a = -1;
     //best et nbst ??
@@ -123,49 +120,47 @@ int adaptive_pursuit(int* R, int sizeR, float** Proba, float Pmin, float alpha) 
     return a;
 }
 
-int bandit() {
+
+// n = nb actions possibles = taille de proba, R, Action
+
+
+int choice(int n, float ** proba, float ** R, int ** Actions, int method, int iter) { //method en paramètre
     // PGAIN ?
     // N ? (length de pgain )
 
-    int T = 5000;
-    int nbruns = 10;
-    int n = 1; // TODO set real value
-    float * proba = malloc(sizeof(float) * n);
-    int * Actions = malloc(sizeof(int) * n);
-    int * R = malloc(sizeof(int) * n);
+   // int n = 1; // TODO set real value 
+   // float * proba = malloc(sizeof(float) * n); 
+    //int * Actions = malloc(sizeof(int) * n);
+   // float * R = malloc(sizeof(int) * n); // récompenses
     int action;
 
     for (int i = 0; i < n; i++){
-        proba[i] = 1/n;
+        (*proba)[i] = 1/n;
     }
 
-    for (int method = 1; method <= 5; method++) {
-        for (int run = 1; run <= nbruns; run ++) {
-            for (int i = 0; i < n ; i++) Actions[i] = 0;
-            for (int i = 0; i < n ; i++) R[i] = 0;
-            for (int i = 0; i < T; i++) {
-                switch(method) {
-                    case 1:
-                        action = select_greedy(R,n);
-                        break;
-                    case 2:
-                        action = select_egreedy(R,n, 0.05);
-                        break;
-                    case 3:
-                        action = UCB1(R, n, i, Actions, n);
-                        break;
-                    case 4:
-                        action = adaptive_pursuit(R,n, &proba, 0.01, 0.8); //(int* R, int sizeR, float** Proba, float Pmin, float alpha)
-                        break;
-                    case 5:
-                        action = roulette_adaptative(R,n,&proba,n,0.01); //int* R, int sizeR, float ** Proba, int sizeP, float Pmin)
-                        break;
-                }
-                Actions[action]++;
-                //TODO : finish
-            }
-        }
+    // r moyenne de récompenses depuis le début (voir fin de l algo du prof)
+       //     for (int i = 0; i < n ; i++) Actions[i] = 0; // initialiser en dehors
+       //     for (int i = 0; i < n ; i++) R[i] = 0; // intialiser en dehors, équivalent à chaque mutation
+    switch(method) {
+        case 1:
+            action = select_greedy(*R,n);
+            break;
+        case 2:
+            action = select_egreedy(*R,n, 0.05);
+            break;
+        case 3:
+            action = UCB1(*R, n, iter, *Actions, n);
+            break;
+        case 4:
+            action = adaptive_pursuit(*R,n, proba, 0.01, 0.8);
+            break;
+        case 5:
+            action = roulette_adaptative(*R,n,proba,n,0.01);
+            break;
     }
+    (*Actions)[action]++;
+                //TODO : finish
+                // Gain = total
 
 
     return 0;
