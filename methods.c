@@ -180,7 +180,7 @@ void auto_algo(int solSize, char* fileName, int method) {
 	for (int i = 0; i < nbr_mut; i++) Actions[i] = 0;
 	for (int i = 0; i < nbr_mut; i++) R[i] = 0;
 
-	for (int i = 0; i < nbr_mut; i++)  printf("proba i = %f\n",proba[i] );
+	for (int i = 0; i < nbr_mut; i++)  printf("proba %d = %f\n",i,proba[i] );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
@@ -267,6 +267,8 @@ void auto_algo(int solSize, char* fileName, int method) {
 			//printf("%f, %f  after %f %f \n", old_fit1, old_fit2, new_fit1, new_fit2);
 			R[mut-1] += ((new_fit1 -old_fit1) + (new_fit2 - old_fit2))/(float)2;
 
+		//	for (int i = 0; i < nbr_mut; i++)  printf("proba %d = %f\n",i,proba[i] );
+
 			//for (int i = 0; i < nbr_mut; i++)  printf("recompense %d = %f\n",i+1, R[i] );
 
 		}
@@ -284,7 +286,7 @@ void auto_algo(int solSize, char* fileName, int method) {
 		trace[cmp] = tmp_best;
 		//printf("%d \n", cmp);
 		cmp++;
-	//	if (cmp == 920) break;
+		//if (cmp == 200) break;
 	//	print_solutions(solutions, n, popSize);
 		
 

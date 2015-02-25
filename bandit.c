@@ -1,6 +1,6 @@
 #include "bandit.h"
 
-
+//is OK
 int* ActionMax(float* E, int sizeE) {
     int valmax = E[0];
     int* Amax = malloc(sizeof(int) * sizeE);
@@ -42,19 +42,11 @@ int tirage_aleatoire(float* proba, int sizeP) {
             return i+1;
         }
     }
-    int tmpW = 0;
-    for (int i = 0; i < sizeP; i++) {
-        if(tmpW < wheel[i]) {
-            index = i;
-            tmpW = wheel[i];
-        }
-
-    }
-    return index;
+    return 1;
 }
 
 
-
+//is OK
 int UCB1(float* R, int sizeR, int iter, int* Actions, int sizeA) {
     float * tempReward = (float*)malloc(sizeof(float) * sizeR);
     for (int i = 0; i < sizeR; i++) {
@@ -97,11 +89,18 @@ int adaptive_pursuit(float* R, int sizeR, float** Proba, float Pmin, float alpha
     //best et nbst ??
     int best = max(R, sizeR);
     int Nbest = best;
-    printf("Before nbest is %d, proba is %f \n", Nbest, *Proba[Nbest]);
-    (*Proba)[Nbest] += alpha * (Pmax - (*Proba)[Nbest]);
-    printf("After nbest is %d, proba is %f \n", Nbest, *Proba[Nbest]);
+  //  printf("Before nbest is %d, proba is %f \n", Nbest, (*Proba)[Nbest]);
+    float add = alpha * (Pmax - (*Proba)[Nbest]);
+    (*Proba)[Nbest] += add;
+  //  printf("After nbest is %d, proba is %f \n", Nbest, (*Proba)[Nbest]);
+  //  printf("add was %f \n", add);
     for (int i = 0; i < sizeR; i++) {
-        if (i != Nbest) (*Proba)[i] += alpha * (Pmin - (*Proba[i]));
+        if (i != Nbest) {
+         //   printf("------ former value = %f \n", (*Proba)[i]);
+            float add2 = alpha * (Pmin - (*Proba)[i]);
+            (*Proba)[i] += add2;
+         //   printf("-------------at iteration %d, add2 = %f \n", i, add2);
+        }
     }
     a = tirage_aleatoire((*Proba), sizeR);
     return a;
@@ -111,7 +110,7 @@ int max(float* R, int sizeR) {
     float tmp_val = -1;
     int toReturn = -1;
     for (int i = 0; i < sizeR; i++) {
-        if (R[i] > tmp_val) {
+        if (R[i] >= tmp_val) {
             toReturn = i;
             tmp_val = R[i];
         }
