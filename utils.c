@@ -122,7 +122,7 @@ void k_flip(int**tab, int n, int k){
 	else {
 		for (int i = 0; i < k; i++) {
 			tmp = -1;
-			while(isInto(tmp, index, n) == 1 || tmp < 0){
+			while(isInto(tmp, index, k) == 1 || tmp < 0){
 				tmp = rand() % n;
 			}
 			index[i] = tmp;
@@ -142,9 +142,10 @@ void k_flip(int**tab, int n, int k){
 
 void bit_flip(int** tab, int n){
 	float randVal = 0;
-	float proba = 1/n;
+	float proba = (1000/n) ;
 	for (int i = 0; i < n; i++){
-		randVal = (float)rand()/(float)(RAND_MAX/1);
+		randVal = rand() % 100;
+		//printf("%f must be under %f\n", randVal, proba );
 		if (randVal <= proba) {
 			if ((*tab)[i] == 0){
 				(*tab)[i] = 1;
@@ -274,7 +275,7 @@ int * tourn(int ** solution, int n, int popSize){
 			cmp++;
 		}
 	}
-	int val = tmp[0];
+	int val = fitness(solution[tmp[0]], n);
 	int index = 0;
 
 	//PROBLEM, where is the fitness ???
@@ -282,7 +283,7 @@ int * tourn(int ** solution, int n, int popSize){
 	for (int i = 1; i < nbr; i++) {
 		if (tmp[i] < val) {
 			index = i;
-			val = tmp[i];
+			val = fitness(solution[tmp[i]], n);
 		}
 	}
 

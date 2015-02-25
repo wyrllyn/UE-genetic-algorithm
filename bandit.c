@@ -22,54 +22,37 @@ int* ActionMax(float* E, int sizeE) {
     return Amax;
 }
 
+// IS OK
 int choix_uniforme(int nba) {
     float ra = (float)rand()/(float)(RAND_MAX/1);
     return floor(1+(nba) * ra);
 }
 
+// IS OK
 int tirage_aleatoire(float* proba, int sizeP) {
     float base = 0;
     int index = -1;
     float ra = (float)rand()/(float)(RAND_MAX/1);
     float* wheel = malloc(sizeof(float) * sizeP);
     for (int i = 0; i < sizeP; i++) {
+       // printf("tirage_aleatoire : i = %d, base = %f, proba = %f \n", i, base, proba[i]);
         wheel[i] = base + proba[i];
         base += proba[i];
         if (wheel[i] > ra ) {
-            return i;
+            return i+1;
         }
+    }
+    int tmpW = 0;
+    for (int i = 0; i < sizeP; i++) {
+        if(tmpW < wheel[i]) {
+            index = i;
+            tmpW = wheel[i];
+        }
+
     }
     return index;
 }
 
-int select_greedy(float* R, int sizeR) {
-    int toReturn = -1;
-    int tmp = 0;
-    for (int i = 0; i < sizeR; i++) {
-        tmp += R[i];
-    }
-    if (tmp == 0) {
-        toReturn = choix_uniforme(sizeR);
-    }
-    else {
-        int * Amax = ActionMax(R, sizeR) ;
-        toReturn = Amax[choix_uniforme(sizeR)];
-        free(Amax);
-    }
-    return toReturn;
-}
-
-int select_egreedy(float* R, int sizeR, float epsilon) {
-    int toReturn = -1;
-    float tmp = (float)rand()/(float)(RAND_MAX/1);
-    if (tmp > epsilon) {
-        toReturn = select_greedy(R, sizeR);
-    }
-    else {
-        toReturn = choix_uniforme(sizeR);
-    }
-    return toReturn;
-}
 
 
 int UCB1(float* R, int sizeR, int iter, int* Actions, int sizeA) {
@@ -78,13 +61,14 @@ int UCB1(float* R, int sizeR, int iter, int* Actions, int sizeA) {
         tempReward[i] = R[i] + sqrt((2*log10(iter))/(Actions[i]+1));
     }
     int * Amax = ActionMax(tempReward, sizeR); // choix équitable
-    int a = Amax[choix_uniforme(sizeA)];
-    free(Amax);
-    return a;
+    int a = Amax[choix_uniforme(sizeA)-1];
+    //free(Amax);
+   // printf(" UCB : a value is %d \n", a);
+    return a + 1;
 }
 
 
-//warning proba = float*
+//IS OK
 int roulette_adaptative(float* R, int sizeR, float ** Proba, int sizeP, float Pmin) {
     int toReturn = 0;
     int tmp = 0;
@@ -108,16 +92,31 @@ int roulette_adaptative(float* R, int sizeR, float ** Proba, int sizeP, float Pm
 
 int adaptive_pursuit(float* R, int sizeR, float** Proba, float Pmin, float alpha) {
     float Pmax = 1 - ((sizeR - 1) * Pmin);
+   // printf("adaptive_pursuit : Pmax = %f \n", Pmax );
     int a = -1;
     //best et nbst ??
-    int best = Pmax;
-    int Nbest = Pmax;
+    int best = max(R, sizeR);
+    int Nbest = best;
+    printf("Before nbest is %d, proba is %f \n", Nbest, *Proba[Nbest]);
     (*Proba)[Nbest] += alpha * (Pmax - (*Proba)[Nbest]);
+    printf("After nbest is %d, proba is %f \n", Nbest, *Proba[Nbest]);
     for (int i = 0; i < sizeR; i++) {
         if (i != Nbest) (*Proba)[i] += alpha * (Pmin - (*Proba[i]));
     }
     a = tirage_aleatoire((*Proba), sizeR);
     return a;
+}
+
+int max(float* R, int sizeR) {
+    float tmp_val = -1;
+    int toReturn = -1;
+    for (int i = 0; i < sizeR; i++) {
+        if (R[i] > tmp_val) {
+            toReturn = i;
+            tmp_val = R[i];
+        }
+    }
+    return  toReturn;
 }
 
 
@@ -134,36 +133,31 @@ int choice(int n, float ** proba, float ** R, int ** Actions, int method, int it
    // float * R = malloc(sizeof(int) * n); // récompenses
     int action;
 
-    for (int i = 0; i < n; i++){
-        (*proba)[i] = 1/n;
-    }
-
     // r moyenne de récompenses depuis le début (voir fin de l algo du prof)
        //     for (int i = 0; i < n ; i++) Actions[i] = 0; // initialiser en dehors
        //     for (int i = 0; i < n ; i++) R[i] = 0; // intialiser en dehors, équivalent à chaque mutation
     switch(method) {
         case 1:
-            action = select_greedy(*R,n);
+            //OK
+            action = choix_uniforme(n);
             break;
         case 2:
-            action = select_egreedy(*R,n, 0.05);
-            break;
-        case 3:
+            // OK TODO : check what iter must be
             action = UCB1(*R, n, iter, *Actions, n);
             break;
-        case 4:
+        case 3:
+            // KO
             action = adaptive_pursuit(*R,n, proba, 0.01, 0.8);
             break;
-        case 5:
+        case 4:
+            // OK
             action = roulette_adaptative(*R,n,proba,n,0.01);
             break;
     }
-    (*Actions)[action]++;
-                //TODO : finish
-                // Gain = total
+    (*Actions)[action-1]++;
 
 
-    return 0;
+    return action;
 }
 /*
 
